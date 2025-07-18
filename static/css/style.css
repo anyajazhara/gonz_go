@@ -1,0 +1,79 @@
+.custom-form input,
+.custom-form select,
+.custom-form textarea {
+  width: 100%;
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #1f2937;
+  font-size: 16px;
+  margin-top: 4px;
+  background-color: white;
+}
+
+.custom-form input:focus,
+.custom-form select:focus,
+.custom-form textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  outline: none;
+}
+
+input,
+select,
+textarea {
+  color: #ff0000;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 16px;
+  border: 1px solid #d1d5db; 
+  border-radius: 8px;
+  color: #1f2937;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.form-help {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+  line-height: 20px;
+}
+
+.form-help ul {
+  margin-top: 4px;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.form-help li {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  line-height: 20px;
+}
+
+.form-error {
+  font-size: 14px;
+  color: #ef4444;
+  margin-top: 4px;
+  line-height: 20px;
+}
