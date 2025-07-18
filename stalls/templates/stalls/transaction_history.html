@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Transaction History</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}"><img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" /></a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+        <a href="{% url 'stalls:stall_list' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Food Stalls</a>
+        <a href="{% url 'stalls:transaction_history' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Transaction History</a>
+        <a href="{% url 'stalls:view_cart' %}" class="bg-[#fffcf0] text-xl text-gray-900 font-semibold px-8 py-4 rounded-full shadow transition hover:bg-gray-100">View Cart</a>
+      </div>
+    </nav>
+    <div class="flex items-center justify-center py-8 px-4">
+      <div class="bg-[#fffcf0] w-full max-w-3xl mx-auto rounded-2xl shadow-2xl p-8">
+        <a href="{% url 'stalls:stall_list' %}" onclick="window.history.back(); return false;" class="inline-block mb-6 text-blue-600 hover:underline text-lg">← Back</a>
+
+        <h2 class="text-5xl font-semibold tracking-tight text-balance text-center text-gray-900 mb-8">Transaction History</h2>
+        {% if orders %} {% for order in orders %}
+        <li class="border-b pb-4 mb-6 list-none">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <p class="font-semibold text-3xl">Order #{{ order.id }}</p>
+              <p class="text-gray-700 text-2xl">Stall: <span class="font-bold">{{ order.stall.name }}</span></p>
+              <p class="text-gray-500 text-lg">Placed at: {{ order.placed_at|date:"M d, Y H:i" }}</p>
+              <p class="text-gray-500 text-lg">ETA: {{ order.eta|time:"H:i" }}</p>
+              <p class="text-gray-500 text-lg">Total: <span class="font-bold">₱{{ order.total|floatformat:2 }}</span></p>
+            </div>
+            {% if order.receipt %}
+            <a href="{{ order.receipt.url }}" target="_blank" class="cursor-pointer inline-block px-3 py-2 bg-blue-600 text-white text-sm rounded-xl shadow-2xl hover:bg-blue-700 transitio">View Receipt</a>
+            {% endif %}
+          </div>
+          <div class="mb-2 mt-2">
+            <table class="w-full text-sm mt-4">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="w-2/5 px-3 py-2 text-left">Item</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Option</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Qty</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                  <td class="px-3 py-1">{{ item.item_name }}</td>
+                  <td class="px-3 py-1">{% if item.option_name == "0" or not item.option_name %}N/A{% else %}{{ item.option_name }}{% endif %}</td>
+                  <td class="px-3 py-1">{{ item.quantity }}</td>
+                  <td class="px-3 py-1">₱{{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-gray-400 italic text-center py-2">No items for this order.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </li>
+        {% endfor %} {% else %}
+        <p class="text-xl italic text-gray-500 text-center mb-8">You haven't made any orders yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

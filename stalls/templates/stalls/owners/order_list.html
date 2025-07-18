@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Orders for {{ stall.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12 mb-8">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}">
+          <img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" />
+        </a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+      </div>
+    </nav>
+    <div class="bg-[#fffcf0] w-4/5 xl:w-3/5 mx-auto py-12 px-10 rounded-2xl shadow-2xl">
+      <div class="mb-8">
+        <a href="{% url 'stalls:select_stall' %}" class="text-blue-600 hover:underline">&larr; Back to restaurant list</a>
+      </div>
+      <h1 class="text-5xl font-bold mb-8 text-center">Orders for {{ stall.name }}</h1>
+
+      {% if orders %}
+      <div class="space-y-10">
+        {% for order in orders %}
+        <div class="bg-white shadow rounded-xl p-8 mb-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+            <div>
+              <span class="font-bold text-xl">Order #{{ order.id }}</span>
+              <span class="ml-2 text-gray-600 text-md">Placed by: {{ order.customer_name|default:"N/A" }}</span>
+              <span class="ml-2 text-gray-600 text-md">ETA: {{ order.eta }}</span>
+              <span class="ml-2 text-gray-600 text-md">Total: ₱{{ order.total|floatformat:2 }}</span>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center space-x-3">
+              {% if order.status == "Completed" %}
+              <form action="{% url 'stalls:mark_order_incomplete' order.id %}" method="post" style="display: inline">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer inline-block px-4 py-2 bg-green-200 text-green-800 rounded-xl font-semibold">Completed</button>
+              </form>
+              {% else %}
+              <form action="{% url 'stalls:mark_order_completed' order.id %}" method="post" style="display: inline">
+                {% csrf_token %}
+                <button type="submit" class="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">Mark as Completed</button>
+              </form>
+              {% endif %} {% if order.receipt %}
+              <a href="{{ order.receipt.url }}" target="_blank" class="cursor-pointer px-4 py-2 bg-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-300 transition ml-2 text-center">Show Receipt</a>
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            <table class="w-full text-sm mt-4">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="w-2/5 px-3 py-2 text-left">Item</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Option</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Qty</th>
+                  <th class="w-1/5 px-3 py-2 text-left">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                  <td class="px-3 py-1">{{ item.item_name }}</td>
+                  <td class="px-3 py-1">{% if item.option_name == "0" or not item.option_name %}N/A{% else %}{{ item.option_name }}{% endif %}</td>
+                  <td class="px-3 py-1">{{ item.quantity }}</td>
+                  <td class="px-3 py-1">₱{{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-gray-400 italic text-center py-2">No items for this order.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-gray-400 italic text-center">No orders yet for this stall.</div>
+      {% endif %}
+    </div>
+  </body>
+</html>

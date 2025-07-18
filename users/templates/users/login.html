@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <title>Log in to GonzGo</title>
+  </head>
+
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed flex items-center justify-center py-8 px-4">
+    <div class="bg-[#fffcf0] w-xl py-12 px-12 my-12 mx-12 rounded-2xl shadow-2xl text-center">
+      <a href="{% url 'landing' %}"><img class="w-md mx-auto" src="{% static 'images/logowithtext.png' %}" alt="logo" /></a>
+      <h2 class="text-5xl font-semibold tracking-tight text-balance text-gray-900 mb-8">Log in</h2>
+      <form class="custom-form" action="/users/login/" method="post">
+        {% csrf_token %} {% if form.non_field_errors %}
+        <div class="form-error mb-4">
+          {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %} {% for field in form %}
+        <div class="form-group">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }} {% if field.help_text %}
+          <p class="form-help">{{ field.help_text|safe }}</p>
+          {% endif %} {% for error in field.errors %}
+          <p class="form-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        <button class="cursor-pointer inline-block my-8 px-8 py-4 bg-blue-600 text-white text-lg rounded-xl shadow-2xl hover:bg-blue-700 transition" type="submit">Log in</button>
+      </form>
+      <p class="text-md sm:text-xl text-gray-600 text-base">No account yet? <a href="{% url 'users:signup' %}" class="text-blue-600 hover:underline">Create one here</a></p>
+    </div>
+  </body>
+</html>

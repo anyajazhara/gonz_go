@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ stall.name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12 mb-4">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}"><img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" /></a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+        <a href="{% url 'stalls:stall_list' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Food Stalls</a>
+        <a href="{% url 'stalls:transaction_history' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Transaction History</a>
+        <a href="{% url 'stalls:view_cart' %}" class="bg-[#fffcf0] text-xl text-gray-900 font-semibold px-8 py-4 rounded-full shadow transition hover:bg-gray-100">View Cart</a>
+      </div>
+    </nav>
+    <div class="bg-[#fffcf0] w-3xl mx-auto py-8 px-8 rounded-2xl shadow-2xl mb-12">
+      {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for message in messages %} {% if message.tags == "error" %}
+        <div class="p-3 rounded bg-red-100 text-red-800">{{ message }}</div>
+        {% else %}
+        <div class="p-3 rounded bg-green-100 text-green-800">{{ message }}</div>
+        {% endif %} {% endfor %}
+      </div>
+      {% endif %}
+
+      <a href="{% url 'stalls:stall_list' %}" class="inline-block mb-6 text-blue-600 hover:underline text-lg"> ← Back to Food Stalls </a>
+
+      {% if stall.image %}
+      <img src="{{ stall.image.url }}" alt="{{ stall.name }}" class="w-full h-64 object-cover object-top rounded-xl mb-4 shadow-md" />
+      {% endif %}
+      <h1 class="text-5xl font-bold mb-6 text-center">{{ stall.name }}</h1>
+      <p class="text-gray-600 mb-10">{{ stall.description }}</p>
+
+      {% for category in categories %}
+      <h2 class="border-b-3 pb-4 text-2xl font-semibold mb-4 mt-10">{{ category.name }}</h2>
+      {% for item in category.items.all %}
+      <div class="mb-4">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">{{ item.name }}</h3>
+          {% if item.description %}
+          <p class="text-sm text-gray-500 mb-4">{{ item.description }}</p>
+          {% endif %} {% if item.options.all %}
+          <div class="space-y-4">
+            {% for option in item.options.all %}
+            <form method="post" action="{% url 'stalls:add_to_cart' %}" class="flex items-center justify-between">
+              {% csrf_token %}
+              <input type="hidden" name="item_id" value="{{ item.id }}" />
+              <input type="hidden" name="option_id" value="{{ option.id }}" />
+
+              <div class="text-sm text-gray-800">{{ option.name }}: <span class="font-semibold">₱{{ option.price }}</span></div>
+
+              <div class="flex items-center space-x-2">
+                <input type="number" name="quantity" value="1" min="1" class="w-16 text-sm px-2 py-1 border border-gray-300 rounded text-left" />
+                <button type="submit" class="cursor-pointer inline-block px-3 py-2 bg-blue-600 text-white text-sm rounded-xl shadow-2xl hover:bg-blue-700 transition">Add to Cart</button>
+              </div>
+            </form>
+            {% endfor %}
+          </div>
+          {% else %}
+          <form method="post" action="{% url 'stalls:add_to_cart' %}" class="flex items-center justify-between mt-4">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <input type="hidden" name="price" value="{{ item.price }}" />
+            <input type="hidden" name="option_name" value="0" />
+            <div class="text-sm text-gray-800">Price: <span class="font-semibold">₱{{ item.price }}</span></div>
+            <div class="flex items-center space-x-2">
+              <input type="number" name="quantity" value="1" min="1" class="w-16 text-sm px-2 py-1 border border-gray-300 rounded text-left" />
+              <button type="submit" class="cursor-pointer inline-block px-3 py-2 bg-blue-600 text-white text-sm rounded-xl shadow-2xl hover:bg-blue-700 transition">Add to Cart</button>
+            </div>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-gray-400 italic">No items in this category.</p>
+      {% endfor %} {% endfor %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Checkout - {{ stall.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}"><img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" /></a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+        <a href="{% url 'stalls:stall_list' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Food Stalls</a>
+        <a href="{% url 'stalls:transaction_history' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Transaction History</a>
+        <a href="{% url 'stalls:view_cart' %}" class="bg-[#fffcf0] text-xl text-gray-900 font-semibold px-8 py-4 rounded-full shadow transition hover:bg-gray-100">View Cart</a>
+      </div>
+    </nav>
+    <div class="flex items-center justify-center py-8 px-4">
+      <div class="bg-[#fffcf0] w-3xl mx-auto py-8 px-8 rounded-2xl shadow-2xl">
+        <a href="javascript:history.back()" class="text-blue-600 hover:underline text-lg mb-4 inline-block">← Back</a>
+
+        <h1 class="text-5xl font-semibold tracking-tight text-balance text-center text-gray-900 mb-8">Checkout</h1>
+
+        <div class="w-4/6 mx-auto">
+          <h2 class="text-xl text-center font-semibold mb-8">{{ stall.name }}</h2>
+
+          {% if stall.qr_code %}
+          <div class="mb-6 flex flex-col items-center">
+            <img src="{{ stall.qr_code.url }}" alt="QR Code" class="w-96 object-contain rounded-xl shadow-xl" />
+            <p class="text-lg text-gray-500 mt-2">Scan this QR code to pay <strong>{{ stall.name }}</strong>.</p>
+          </div>
+          {% endif %}
+
+          <ul class="mb-6">
+            {% for item in cart_items %}
+            <li class="py-2 flex justify-between items-center">
+              <div>
+                <span class="font-medium">{{ item.item_name }}</span>
+                {% if item.option_name and item.option_name != "Default" and item.option_name != "0" %}
+                <span class="text-gray-500 text-sm">({{ item.option_name }})</span>
+                {% endif %} {% if item.description %}
+                <div class="text-xs text-gray-400 italic">{{ item.description }}</div>
+                {% endif %}
+              </div>
+              <div class="text-right">
+                <span class="text-gray-700 text-md">×{{ item.quantity }}</span>
+                <span class="block text-gray-700">₱{{ item.price|floatformat:2 }} each</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <hr class="my-6" />
+
+          <div class="text-right font-bold text-xl mb-8">Total: ₱{{ total|floatformat:2 }}</div>
+
+          <form method="post" enctype="multipart/form-data" class="space-y-8 mt-6 mb-6">
+            {% csrf_token %}
+            <!-- Upload Receipt -->
+            <div class="mb-8">
+              <label class="block mb-2 text-lg font-semibold text-gray-900" for="id_receipt"> Upload Receipt </label>
+              <input type="file" name="receipt" id="id_receipt" accept="image/*" class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none focus:border-blue-500 p-4" required />
+              {% if form.receipt.errors %}
+              <span class="text-sm text-red-500">{{ form.receipt.errors }}</span>
+              {% endif %}
+            </div>
+
+            <!-- ETA -->
+            <div>
+              <label class="block mb-2 text-lg font-semibold text-gray-900" for="id_eta"> Estimated Time of Arrival at Gonz </label>
+              <input type="time" name="eta" id="id_eta" min="{{ min_eta }}" class="block w-40 px-3 py-2 text-base text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 bg-white cursor-pointer" required />
+              <p class="text-md text-gray-500 mt-1">Earliest: <span class="font-semibold">{{ min_eta }}</span> (10 minutes from now)</p>
+              <p class="text-md text-gray-500 mt-1">Please select a time no earlier than {{ min_eta }}.</p>
+              {% if form.eta.errors %}
+              <span class="text-sm text-red-500">{{ form.eta.errors }}</span>
+              {% endif %}
+            </div>
+
+            <button type="submit" class="cursor-pointer w-full py-3 mt-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition">Confirm Order</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

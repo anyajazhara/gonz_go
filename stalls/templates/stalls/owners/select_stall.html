@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Select Your Restaurant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}">
+          <img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" />
+        </a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+      </div>
+    </nav>
+    <div class="flex items-center justify-center py-8 px-4">
+      <div class="bg-[#fffcf0] w-3xl mx-auto py-12 px-10 rounded-2xl shadow-2xl text-center">
+        <h1 class="text-5xl font-bold mb-8">Select a Restaurant You Own</h1>
+        <div class="space-y-6">
+          {% for stall in stalls %}
+          <a href="{% url 'stalls:owner_stall_orders' stall.id %}" class="block bg-blue-600 hover:bg-blue-700 text-white text-xl rounded-xl py-6 px-8 font-semibold shadow transition"> {{ stall.name }} </a>
+          {% empty %}
+          <div class="text-gray-400 italic">You don't own any stalls.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

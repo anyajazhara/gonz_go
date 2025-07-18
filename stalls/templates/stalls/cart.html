@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <title>Your Cart</title>
+  </head>
+  <body class="min-h-screen bg-[url('{% static 'images/background.png' %}')] bg-cover bg-center bg-fixed">
+    <nav class="relative flex items-center justify-center py-12 px-12">
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <a href="{% url 'landing' %}"><img src="{% static 'images/logo-2.png' %}" alt="GonzGo Logo" class="w-96" /></a>
+      </div>
+      <div class="ml-auto flex items-center space-x-8">
+        <form action="{% url 'users:logout' %}" method="post" style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Logout</button>
+        </form>
+        <a href="{% url 'stalls:stall_list' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Food Stalls</a>
+        <a href="{% url 'stalls:transaction_history' %}" class="cursor-pointer text-xl text-[#fffcf0] font-medium hover:underline">Transaction History</a>
+        <a href="{% url 'stalls:view_cart' %}" class="bg-[#fffcf0] text-xl text-gray-900 font-semibold px-8 py-4 rounded-full shadow transition hover:bg-gray-100">View Cart</a>
+      </div>
+    </nav>
+    <div class="flex items-center justify-center py-8 px-4">
+      <div class="bg-[#fffcf0] w-3xl mx-auto py-8 px-8 rounded-2xl shadow-2xl">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %} {% if message.tags == "error" %}
+          <div class="p-3 rounded bg-red-100 text-red-800">{{ message }}</div>
+          {% else %}
+          <div class="p-3 rounded bg-green-100 text-green-800">{{ message }}</div>
+          {% endif %} {% endfor %}
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'stalls:stall_list' %}" onclick="window.history.back(); return false;" class="inline-block mb-6 text-blue-600 hover:underline text-lg">← Back</a>
+
+        <h1 class="text-5xl font-semibold tracking-tight text-balance text-center text-gray-900 mb-8">Your Cart</h1>
+
+        <div class="w-4/6 mx-auto">
+          {% if cart_items %}
+          <ul class="space-y-4 mx-6">
+            {% for item in cart_items %}
+            <li class="flex justify-between items-center pb-2">
+              <div>
+                <h2 class="text-lg font-semibold">{{ item.item_name }}</h2>
+
+                {% if item.option_name and item.option_name|stringformat:"s" != "0" %}
+                <p class="text-sm text-gray-500">{{ item.option_name }}</p>
+                {% elif item.description %}
+                <p class="text-sm text-gray-500 italic">{{ item.description }}</p>
+                {% endif %}
+
+                <p class="text-sm text-gray-500">₱{{ item.price }} × {{ item.quantity }}</p>
+              </div>
+              <div class="flex items-center space-x-4">
+                <p class="font-semibold text-lg">₱{{ item.subtotal|floatformat:2 }}</p>
+                {% if item.option_id %}
+                <a href="{% url 'stalls:delete_cart_item' item.option_id %}" class="text-red-500 hover:underline">Remove</a>
+                {% else %}
+                <span class="text-gray-400 italic">Invalid item</span>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <hr class="my-6" />
+
+          <div class="flex justify-between items-center">
+            <p class="text-xl font-bold">Total: ₱{{ total|floatformat:2 }}</p>
+            <a href="{% url 'stalls:clear_cart' %}" class="block py-3 px-4 mt-2 bg-red-600 text-white text-lg font-semibold rounded-xl hover:bg-red-700 transition"> Clear Cart </a>
+          </div>
+
+          <div class="w-full mt-4 p-2 text-center">
+            <a href="{% url 'stalls:checkout' %}" class="block w-full py-3 mt-4 bg-green-600 text-white text-lg font-semibold rounded-xl hover:bg-green-700 transition"> Checkout </a>
+          </div>
+          {% else %}
+          <p class="text-gray-500 italic text-xl text-center mb-8">Your cart is empty.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
